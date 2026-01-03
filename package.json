@@ -1,0 +1,10 @@
+
+{
+  "name": "soso-bridge",
+  "version": "1.0.0",
+  "main": "api/webhook.js",
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
+}
+  
