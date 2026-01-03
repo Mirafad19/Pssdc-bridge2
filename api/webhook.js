@@ -1,34 +1,35 @@
 
-// THIS IS YOUR BACKEND SCRIPT (Node.js)
-// Host this on Render.com or Railway.app to get your Webhook URL
+// FILE PATH: api/webhook.js
+// (You MUST create a folder named 'api' and put this file inside it)
 
-const express = require('express');
 const axios = require('axios');
-const app = express();
-app.use(express.json());
 
-const WA_INSTANCE = "YOUR_INSTANCE_ID";
-const WA_TOKEN = "YOUR_TOKEN";
+export default async function handler(req, res) {
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method Not Allowed' });
+    }
 
-app.post('/webhook', async (req, res) => {
-    const message = req.body.message; // From WASenderAPI
-    const sender = req.body.sender;
-    
-    console.log("New Message:", message);
+    try {
+        const { message, sender } = req.body;
+        console.log("From:", sender, "Message:", message);
 
-    // 1. Send to Gemini with your Knowledge Base
-    // 2. Get the response
-    const aiResponse = "Hello! This is a reply from Gemini."; 
+        const WA_INSTANCE = "YOUR_INSTANCE_ID";
+        const WA_TOKEN = "YOUR_TOKEN";
 
-    // 3. Send back to WhatsApp via WASenderAPI
-    await axios.post(`https://wasenderapi.com/api/send?instance_id=${WA_INSTANCE}&access_token=${WA_TOKEN}`, {
-        number: sender,
-        type: 'text',
-        message: aiResponse
-    });
+        // 1. Process with Gemini (Logic would go here)
+        const aiResponse = "Hello! Soso AI received your message: " + message;
 
-    res.sendStatus(200);
-});
+        // 2. Send back to WhatsApp
+        await axios.post(`https://wasenderapi.com/api/send?instance_id=${WA_INSTANCE}&access_token=${WA_TOKEN}`, {
+            number: sender,
+            type: 'text',
+            message: aiResponse
+        });
 
-app.listen(3000, () => console.log("AI Agent Bridge Live!"));
+        return res.status(200).json({ status: 'success' });
+    } catch (error) {
+        console.error("Error:", error);
+        return res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
   
